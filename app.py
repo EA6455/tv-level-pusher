@@ -80,10 +80,11 @@ app = Flask(__name__)
 
 @app.route("/health")
 def health():
-    return jsonify(ok=True, level=stats["level"],
-                   age=round(time.time() - stats["last_t"], 1)
-                   if stats["last_t"] else None,
-                   **{k: v for k, v in stats.items() if k != "last_t"})
+    out = dict(ok=True, **stats)
+    out["age"] = (round(time.time() - stats["last_t"], 1)
+                  if stats["last_t"] else None)
+    out.pop("last_t", None)
+    return jsonify(out)
 
 
 threading.Thread(target=_loop, daemon=True).start()
